@@ -98,12 +98,16 @@ if [ -n "$PLAN9" ]; then
 	fi
 else
 	loaddeps "git" "compiletc" "binutils" "Xorg-7.7-dev"
+	# We could use wget to get master.zip, but this way a system
+	# installed in a permanent location can be updated with git
+	git clone --depth 1 "$URL" "$TARGET" || fatal "cloning $URL"
 	# BusyBox ar does not have all the needed options.
 	# The one in binutils is fine, but p9p INSTALL sets PATH to /usr/bin
 	sudo mv /usr/bin/ar /usr/bin/ar-busybox
-	git clone --depth 1 "$URL" "$TARGET" || fatal "cloning $URL"
-	( cd "$TARGET"; sudo ./INSTALL -r "$FINAL" ) || fatal "$TARGET/INSTALL failed"
+	( cd "$TARGET"; sudo ./INSTALL -r "$FINAL" )
+	DONE="$?"
 	sudo mv /usr/bin/ar-busybox /usr/bin/ar
+	[ $DONE -neq 0 ] && fatal "$TARGET/INSTALL failed"
 	if [ "$TARGET" = "$FINAL" ]; then
 		mv "$TMP"/log "$TMP"/log-local
 		PLAN9="$TARGET" "$0" 1>&3 2>&3
