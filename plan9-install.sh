@@ -74,6 +74,7 @@ mktcz() {
 		 && cat > "${TMP}/${PRD}" \
 		 && mksquashfs "$TMP"/"$TCZ" /tmp/"$TCZ".tcz -all-root \
 		 && sudo mv /tmp/"$TCZ".tcz "$OPT" || fatal "making $TCZ".tcz
+	sync
 	echo "$1.tcz copied to $OPT" 1>&3
 }
 
