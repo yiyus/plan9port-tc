@@ -50,9 +50,9 @@ mkdir -p "$TMP" "$TARGET"
 
 echo -n "Installing in $TARGET from " 1>&2
 [ -n "$PLAN9" ] && echo "$PLAN9" || echo "$URL" 1>&2
-# stderr will be on 3 (1 and 2 go to $TMP/log)
 
 # Send everything to the log file, use fatal to exit on error
+# stderr will be 3, 1 and 2 go to $TMP/log
 exec 3>&1 >"$TMP"/log 2>&1
 fatal() {
 	MSG="ERROR $1"
