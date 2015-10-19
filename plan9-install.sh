@@ -118,7 +118,8 @@ else
 	[ $DONE -neq 0 ] && fatal "$TARGET/INSTALL failed"
 	if [ "$TARGET" = "$FINAL" ]; then
 		mv "$TMP"/log "$TMP"/log-local
-		PLAN9="$TARGET" "$0" 1>&3 2>&3
+		export PLAN9="$TARGET"
+		"$0" 1>&3 2>&3
 		exit $?
 	fi
 fi
@@ -133,14 +134,14 @@ loaddeps "squashfs-tools"
 
 # Distribute files in plan9port-* directories for each extension
 # following instructions in dist/mkfilelist
-cpfiles() {
+procline() {
 	dir="${TMP}/plan9port-${2}${P9}/${1%/*}"
 	[ -d "$dir" ] || mkdir -p "$dir"
 	[ -f "${PLAN9}/$1" ] && cp -L "${PLAN9}/$1" "$dir"
 }
-PLAN9="$TARGET"
+export PLAN9="$TARGET"
 "$RC" < "$TARGET"/dist/mkfilelist | while read line; do
-	cpfiles $line
+	procline $line
 done
 
 # Add profile.d script to base tcz
@@ -160,7 +161,6 @@ for pkg in "$TARGET"/dist/pkg/*; do
 	name="${pkg##*/}"
 	[ -d "$TMP"/plan9port-$name ] || continue
 	TCZ="$TMP"/plan9port-$name.tcz
-	rm -f "$TCZ".dep
 	for dep in $( "$RC" "-c" ". $pkg; echo \$depends" ); do
 		echo "$dep".tcz >> "$TCZ".dep
 	done
