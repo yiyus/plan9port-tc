@@ -133,14 +133,14 @@ loaddeps "squashfs-tools"
 
 # Distribute files in plan9port-* directories for each extension
 # following instructions in dist/mkfilelist
-mkline() {
+cpfiles() {
 	dir="${TMP}/plan9port-${2}${P9}/${1%/*}"
-	mkdir -p "$dir"
+	[ -d "$dir" ] || mkdir -p "$dir"
 	[ -f "${PLAN9}/$1" ] && cp -L "${PLAN9}/$1" "$dir"
 }
 PLAN9="$TARGET"
 "$RC" < "$TARGET"/dist/mkfilelist | while read line; do
-	mkline $line
+	cpfiles $line
 done
 
 # Add profile.d script to base tcz
@@ -155,18 +155,14 @@ cat <<-EOD > "$PROF"/plan9port-base.sh
 # Create tcz's from plan9port-* dirs and tcz.dep's reading dist/pkg/*
 rm -f "$TMP"/plan9port-*.tcz.dep
 echo "compiletc.tcz" >> "$TMP"/plan9port-devel.tcz.dep
+mkdir -p "$TMP"/plan9port-main "$TMP"/plan9port-minimal
 for pkg in "$TARGET"/dist/pkg/*; do
 	name="${pkg##*/}"
 	[ -d "$TMP"/plan9port-$name ] || continue
 	TCZ="$TMP"/plan9port-$name.tcz
 	rm -f "$TCZ".dep
-	for dep in $( sed 's/.*depends.*(\(.\+\))/\1/p;d' $pkg ); do
-		echo plan9port-"$dep".tcz >> "$TCZ".dep
+	for dep in $( "$RC" "-c" ". $pkg; echo \$depends" ); do
+		echo "$dep".tcz >> "$TCZ".dep
 	done
 	mktcz $name
-	echo plan9port-$name.tcz >> "$TMP"/plan9port-main.tcz.dep
 done
-echo -e 'plan9port-base.tcz\nplan9port-bin.tcz' > "$TMP"/plan9port-minimal.tcz.dep
-mkdir -p "$TMP"/plan9port-main "$TMP"/plan9port-minimal
-mktcz main
-mktcz minimal
