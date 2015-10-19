@@ -76,11 +76,7 @@ if [ -n "$PLAN9" ]; then
 	[ -f /usr/local/tce.installed/plan9port-base ] && FROMTCZ=1
 
 	if [ "$TARGET" = "$FINAL" ] || [ -z "$FROMTCZ" ]; then
-		if [ -n "$FROMTCZ" ]; then
-			for pkg in "$PLAN9"/dist/pkg/*; do
-				loaddeps "plan9port-$pkg"
-			done
-		fi
+		[ -n "$FROMTCZ" ] && loaddeps "plan9port-main"
 		loaddeps "compiletc"
 		cp -LR "$PLAN9"/* "$TARGET" || fatal "copying $PLAN9 to $TARGET"
 		( cd "$TARGET"; sudo ./INSTALL -c -r "$FINAL" ) || fatal "$TARGET/INSTALL -c failed"
