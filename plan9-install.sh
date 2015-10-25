@@ -33,11 +33,11 @@ fi
 FINAL="$P9"
 TARGET="$TMP"/plan9"$FINAL"
 unset LOADED
-[ -f /usr/local/tce.installed/plan9 ] && LOADED=1
+[ "$PLAN9" = "$P9" ] && [ -f /usr/local/tce.installed/plan9 ] && LOADED=1
 if [ $# -eq 1 ]; then
 	FINAL="$1"
 	TARGET="$1"
-elif [ "$PLAN9" = "$P9" ] && [ -n "$LOADED" ]; then
+elif [ -n "$LOADED" ]; then
 	echo "plan9.tcz already loaded, unset PLAN9 to regenerate from $URL"
 	exit
 fi
@@ -105,7 +105,7 @@ else
 	( cd "$TARGET"; sudo ./INSTALL -r "$FINAL" )
 	DONE="$?"
 	sudo mv /usr/bin/ar-busybox /usr/bin/ar
-	[ $DONE -neq 0 ] && fatal "$TARGET/INSTALL failed"
+	[ ! $DONE -eq 0 ] && fatal "$TARGET/INSTALL failed"
 	if [ "$TARGET" = "$FINAL" ]; then
 		mv "$TMP"/log "$TMP"/log-local
 		PLAN9="$TARGET" "$0" 1>&3 2>&3
