@@ -31,13 +31,13 @@ fi
 
 # Configure
 FINAL="$P9"
-TARGET="${TMP}"/plan9"${FINAL}"
+TARGET="$TMP"/plan9"$FINAL"
 unset LOADED
 [ -f /usr/local/tce.installed/plan9 ] && LOADED=1
 if [ $# -eq 1 ]; then
 	FINAL="$1"
 	TARGET="$1"
-elif [ -n "$LOADED" ]; then
+elif [ "$PLAN9" = "$P9" ] && [ -n "$LOADED" ]; then
 	echo "plan9.tcz already loaded, unset PLAN9 to regenerate from $URL"
 	exit
 fi
@@ -94,7 +94,6 @@ if [ -n "$PLAN9" ]; then
 		    tce-load -i plan9 && . /etc/profile.d/plan9
 		fi
 		EOD
-	fi
 else
 	loaddeps "git" "binutils" "Xorg-7.7-dev"
 	# We could use wget to get master.zip, but this way a system
