@@ -30,6 +30,14 @@ if [ $# = 1 ] && [ "$1" = "-h" ] || [ $# -gt 1 ]; then
 fi
 
 # Configure
+if [ -L /etc/sysconfig/tcedir ]; then
+	TCEDIR=`readlink /etc/sysconfig/tcedir`
+elif [ -f /opt/.tce_dir ]; then
+	TCEDIR=`cat /opt/.tce_dir`
+else
+   echo "ERROR: Extension directory not found"
+   exit 1
+fi
 FINAL="$P9"
 TARGET="$TMP"/plan9"$FINAL"
 unset LOADED
@@ -69,7 +77,7 @@ mktcz() {
 	loaddeps "squashfs-tools"
 	TCZ="$1"
 	PRD="$TCZ"/etc/profile.d/"$TCZ".sh
-	OPT="/etc/sysconfig/tcedir/optional"
+	OPT="$TCEDIR"/optional
 	rm -f "$TCZ".tcz
 	mkdir -p "$TMP"/"$1"/etc/profile.d \
 		 && cat > "${TMP}/${PRD}" \
